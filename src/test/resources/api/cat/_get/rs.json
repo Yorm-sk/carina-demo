@@ -1,0 +1,4 @@
+{
+  "fact": "type:String",
+  "length": "regex:[\\d]+"
+}
