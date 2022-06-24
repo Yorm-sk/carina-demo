@@ -1,19 +1,14 @@
 package com.qaprosoft.carina.demo.gui.mygui.pages;
 
-import com.qaprosoft.carina.core.foundation.utils.Configuration;
-import com.qaprosoft.carina.core.foundation.utils.R;
 import com.qaprosoft.carina.core.foundation.webdriver.decorator.ExtendedWebElement;
-import org.openqa.selenium.Point;
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.invoke.MethodHandles;
-import java.util.List;
 
 public class LogInPage extends SauceDemoAbstract {
+
+    @FindBy(xpath = "//h3")
+    private ExtendedWebElement errorBox;
 
     @FindBy(xpath = "//div[@class=\"form_group\"]/input[@name=\"user-name\"]")
     private ExtendedWebElement username;
@@ -40,5 +35,22 @@ public class LogInPage extends SauceDemoAbstract {
                 username.getLocation().y < loginButton.getLocation().y;
         if (!(password.getLocation().y < loginButton.getLocation().y)) everythingOk = false;
         return everythingOk;
+    }
+
+    public InventoryPage enterWrightDataAndClick(String username, String password){
+        this.username.type(username);
+        this.password.type(password);
+        loginButton.click();
+        return new InventoryPage(driver);
+    }
+
+    public boolean enterWrongData(String username, String password){
+        String lockedUser = "Epic sadface: Sorry, this user has been locked out.";
+        String wrongUser = "Epic sadface: Username and password do not match any user in this service";
+        this.username.type(username);
+        this.password.type(password);
+        loginButton.click();
+        return StringUtils.equalsIgnoreCase(errorBox.getText(), lockedUser)
+                || StringUtils.equalsIgnoreCase(errorBox.getText(), wrongUser);
     }
 }

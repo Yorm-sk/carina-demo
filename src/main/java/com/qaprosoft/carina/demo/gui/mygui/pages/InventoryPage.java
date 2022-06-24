@@ -1,7 +1,9 @@
 package com.qaprosoft.carina.demo.gui.mygui.pages;
 
 import com.qaprosoft.carina.core.foundation.webdriver.decorator.ExtendedWebElement;
+import com.qaprosoft.carina.demo.gui.mygui.components.CardItem;
 import com.qaprosoft.carina.demo.gui.mygui.components.FilterMenu;
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.FindBy;
 
@@ -9,7 +11,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class InventoryPage extends SauceDemoAbstract{
+public class InventoryPage extends AfterLoginPage{
+
+    @FindBy(xpath = "//div[@class=\"inventory_item\"]")
+    private List<CardItem> cardItems;
 
     @FindBy(xpath = "//div[@class=\"inventory_item\"]//img")
     private List<ExtendedWebElement> productImages;
@@ -32,6 +37,10 @@ public class InventoryPage extends SauceDemoAbstract{
     public InventoryPage(WebDriver driver) {
         super(driver);
         setPageURL("/inventory.html");
+    }
+
+    public List<CardItem> getCardItems() {
+        return cardItems;
     }
 
     public FilterMenu getFilterMenu() {
@@ -60,5 +69,10 @@ public class InventoryPage extends SauceDemoAbstract{
             previous = current;
         }
         return true;
+    }
+
+    public boolean clickCartButton(int index){
+        addToCardButtons.get(index).click();
+        return StringUtils.equalsIgnoreCase(addToCardButtons.get(index).getText(), "remove");
     }
 }

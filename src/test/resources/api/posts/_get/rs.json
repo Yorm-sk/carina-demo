@@ -1,0 +1,6 @@
+{
+  "userId": "regex:^[\\d]+$",
+  "id": "regex:^[\\d]+$",
+  "title": "type:String",
+  "body": "type:String"
+}
