@@ -1,8 +1,9 @@
-package com.qaprosoft.carina.demo.gui.mygui.pages;
+package com.qaprosoft.carina.demo.gui.saucedemo.mygui.pages;
 
 import com.qaprosoft.carina.core.foundation.webdriver.decorator.ExtendedWebElement;
-import com.qaprosoft.carina.demo.gui.mygui.components.CardItem;
-import com.qaprosoft.carina.demo.gui.mygui.components.FilterMenu;
+import com.qaprosoft.carina.demo.exeptions.ListIsEmptyException;
+import com.qaprosoft.carina.demo.gui.saucedemo.mygui.components.CardItem;
+import com.qaprosoft.carina.demo.gui.saucedemo.mygui.components.FilterMenu;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.FindBy;
@@ -47,12 +48,8 @@ public class InventoryPage extends AfterLoginPage{
         return filterMenu;
     }
 
-    public List<ExtendedWebElement> getFirstCardElement(){
-        return List.of(productImages.get(0), itemNames.get(0), productDescriptions.get(0),
-                productPrices.get(0), addToCardButtons.get(0));
-    }
-
-    public ProductPageWithId4 openFirstInventoryPage(){
+    public ProductPageWithId4 openFirstInventoryPage() throws ListIsEmptyException {
+        if (productImages.isEmpty()) throw new ListIsEmptyException("ProductListIsEmpty");
         productImages.get(0).click();
         return new ProductPageWithId4(driver);
     }
@@ -71,8 +68,11 @@ public class InventoryPage extends AfterLoginPage{
         return true;
     }
 
-    public boolean clickCartButton(int index){
+    public void clickCartButton(int index){
         addToCardButtons.get(index).click();
+    }
+
+    public boolean isButtonTextChanged(int index){
         return StringUtils.equalsIgnoreCase(addToCardButtons.get(index).getText(), "remove");
     }
 }

@@ -1,4 +1,4 @@
-package com.qaprosoft.carina.demo.gui.mygui.components;
+package com.qaprosoft.carina.demo.gui.saucedemo.mygui.components;
 
 import com.qaprosoft.carina.core.foundation.webdriver.decorator.ExtendedWebElement;
 import com.qaprosoft.carina.core.gui.AbstractUIObject;
@@ -8,6 +8,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.FindBy;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class FilterMenu extends AbstractUIObject {
 
@@ -23,15 +25,21 @@ public class FilterMenu extends AbstractUIObject {
         super(driver, searchContext);
     }
 
-    public List<ExtendedWebElement> getOptions() {
-        return options;
-    }
-
     public boolean isSelected(String textOption){
         return StringUtils.containsIgnoreCase(activeOption.getText(), textOption);
     }
 
     public boolean select(int index){
         return select.select(index);
+    }
+
+    public boolean isOptionsValid(){
+        List<String> neededElements = Stream.of("Name (A to Z)", "Name (Z to A)", "Price (low to high)",
+                "Price (high to low)").map(String::toLowerCase).collect(Collectors.toList());
+        List<String> elementOnPage = options.stream()
+                .map(ExtendedWebElement::getText)
+                .map(String::toLowerCase)
+                .collect(Collectors.toList());
+        return  neededElements.equals(elementOnPage);
     }
 }

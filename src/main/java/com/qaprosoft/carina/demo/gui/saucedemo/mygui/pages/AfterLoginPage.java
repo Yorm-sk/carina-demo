@@ -1,6 +1,6 @@
-package com.qaprosoft.carina.demo.gui.mygui.pages;
+package com.qaprosoft.carina.demo.gui.saucedemo.mygui.pages;
 
-import com.qaprosoft.carina.demo.gui.mygui.components.Header;
+import com.qaprosoft.carina.demo.gui.saucedemo.mygui.components.Header;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.FindBy;
 

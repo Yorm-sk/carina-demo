@@ -1,12 +1,12 @@
 package com.qaprosoft.carina.demo;
 
 import com.qaprosoft.carina.core.foundation.IAbstractTest;
-import com.qaprosoft.carina.core.foundation.webdriver.decorator.ExtendedWebElement;
-import com.qaprosoft.carina.demo.gui.mygui.components.CardItem;
-import com.qaprosoft.carina.demo.gui.mygui.pages.BasketPage;
-import com.qaprosoft.carina.demo.gui.mygui.pages.InventoryPage;
-import com.qaprosoft.carina.demo.gui.mygui.pages.LogInPage;
-import com.qaprosoft.carina.demo.gui.mygui.pages.ProductPageWithId4;
+import com.qaprosoft.carina.demo.exeptions.ListIsEmptyException;
+import com.qaprosoft.carina.demo.gui.saucedemo.mygui.components.CardItem;
+import com.qaprosoft.carina.demo.gui.saucedemo.mygui.pages.BasketPage;
+import com.qaprosoft.carina.demo.gui.saucedemo.mygui.pages.InventoryPage;
+import com.qaprosoft.carina.demo.gui.saucedemo.mygui.pages.LogInPage;
+import com.qaprosoft.carina.demo.gui.saucedemo.mygui.pages.ProductPageWithId4;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,8 +38,10 @@ public class WebSaucePageTest implements IAbstractTest {
     public void basketQuantityTest() {
         InventoryPage inventoryPage = loginAsStandardUser();
         SoftAssert softAssert = new SoftAssert();
-        softAssert.assertTrue(inventoryPage.clickCartButton(0));
-        softAssert.assertTrue(inventoryPage.clickCartButton(2));
+        inventoryPage.clickCartButton(0);
+        softAssert.assertTrue(inventoryPage.isButtonTextChanged(0));
+        inventoryPage.clickCartButton(2);
+        softAssert.assertTrue(inventoryPage.isButtonTextChanged(2));
         softAssert.assertAll();
 
         BasketPage basketPage = inventoryPage.getHeader().goToBasket();
@@ -49,12 +51,16 @@ public class WebSaucePageTest implements IAbstractTest {
 
     @Test()
     public void loginWrongUserTest() {
-        LogInPage log = openPage();
+        LogInPage logInPage = openPage();
         SoftAssert softAssert = new SoftAssert();
-        softAssert.assertTrue(log.enterWrongData("locked_out_user", "secret_sauce"));
-        softAssert.assertTrue(log.enterWrongData("Dima", "secret_sauce"));
-        softAssert.assertTrue(log.enterWrongData("standard_user", "Drond"));
-        softAssert.assertTrue(log.enterWrongData("Roma", "12345"));
+        logInPage.enterWrongDataAndClick("locked_out_user", "secret_sauce");
+        softAssert.assertTrue(logInPage.isLockedErrorMessageAppeared());
+        logInPage.enterWrongDataAndClick("Dima", "secret_sauce");
+        softAssert.assertTrue(logInPage.isNoUserErrorMessageAppeared());
+        logInPage.enterWrongDataAndClick("standard_user", "Drond");
+        softAssert.assertTrue(logInPage.isNoUserErrorMessageAppeared());
+        logInPage.enterWrongDataAndClick("Roma", "12345");
+        softAssert.assertTrue(logInPage.isNoUserErrorMessageAppeared());
         softAssert.assertAll();
     }
 
@@ -99,28 +105,27 @@ public class WebSaucePageTest implements IAbstractTest {
     @Test()
     public void verifyFilterMenuTest() {
         InventoryPage inventoryPage = loginAsStandardUser();
-        SoftAssert softAssert = new SoftAssert();
-        List<ExtendedWebElement> elementList = inventoryPage.getFilterMenu().getOptions();
-        for (ExtendedWebElement element : elementList) softAssert.assertTrue(element.isElementPresent());
-        softAssert.assertAll();
+        Assert.assertTrue(inventoryPage.getFilterMenu().isOptionsValid(), "Options not valid");
     }
 
     @Test()
     public void verifyProductItemCard() {
         InventoryPage inventoryPage = loginAsStandardUser();
-        List<ExtendedWebElement> elementList = inventoryPage.getFirstCardElement();
-        SoftAssert softAssert = new SoftAssert();
-        for (ExtendedWebElement element : elementList) {
-            softAssert.assertTrue(element.isElementPresent(), element.getName() + " not present");
-        }
-        softAssert.assertAll();
+        Assert.assertTrue(inventoryPage.getCardItems().get(0).isAllElementsPresents(),
+                "Some elements are not present");
     }
 
     @Test()
     public void openFirstCardTest() {
         InventoryPage inventoryPage = loginAsStandardUser();
-        ProductPageWithId4 page = inventoryPage.openFirstInventoryPage();
-        Assert.assertTrue(page.isPageOpened(), "Product page was no open");
+        ProductPageWithId4 page = null;
+        try {
+            page = inventoryPage.openFirstInventoryPage();
+        } catch (ListIsEmptyException e) {
+            LOGGER.error(e.getMessage());
+        }
+        Assert.assertNotNull(page, "There is no products on the page");
+        Assert.assertTrue(page.isPageOpened(), "Product page was not open");
     }
 
     @Test()
